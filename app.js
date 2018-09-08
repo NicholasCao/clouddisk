@@ -10,9 +10,8 @@ const decode = require('urldecode')
 const formidable = require('formidable')
 
 const root = path.join(__dirname,'store')
-// 'F://'
 const fontsize = 16
-const PORT = 80
+const PORT = 8889
 
 const util = require('./util')
 
@@ -73,7 +72,8 @@ const server = http.createServer((req, res) => {
                   xhr.onreadystatechange =  () => {
                       // 这步为判断服务器是否正确响应
                     if (xhr.readyState == 4 && xhr.status == 200) {
-                      console.log(xhr.responseText);
+                      console.log('xhr.responseText');
+                      window.location.reload();
                     } 
                   }
                 };
@@ -126,8 +126,8 @@ const server = http.createServer((req, res) => {
         return
       }
       var oldpath = path.normalize(files.upload.path);
-      var newpath = path.join(oldpath.slice(0,oldpath.lastIndexOf('\\')+1)  + files.upload.name)
-
+      var newpath = path.join(__dirname,oldpath.substring(0,oldpath.lastIndexOf('/')+1) + files.upload.name)
+      // console.log(newpath)
       res.writeHead(200, {'content-type': 'text/plain'});
       res.write('received upload:\n\n');
       fs.rename(oldpath,newpath,(err)=>{
