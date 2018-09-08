@@ -56,16 +56,30 @@ const server = http.createServer((req, res) => {
         } else {
           let html = `<style>a{text-decoration: none;color: black} 
             h1 a{color: #423f37;} 
-            input {margin-top:10px;
-            background-color: #fff;
-            border-radius: 4px;
-            border: 1px solid #dcdfe6;
-            color: #606266;
-            font-size: inherit;
-            line-height: 30px;
-            margin-left:3%
-          }
+            input {margin-top:10px;background-color: #fff;border-radius: 4px;border: 1px solid #dcdfe6;color: #606266;font-size: inherit;line-height: 30px;margin-left:3%;}
+            button {line-height: 1;cursor: pointer;background: #fff;border: 1px solid #dcdfe6;color: #606266;font-size: 16px;border-radius: 4px;margin-left: 15px}
             </style>
+            <script>
+            window.onload = function (){
+              var btns = document.getElementsByTagName("button");
+              for (let i=0, length=btns.length; i<length; i++) {
+                var btn = btns[i];
+                btn.onclick = function (){
+                  var pathname = document.getElementsByTagName("a")[i+3].innerHTML
+                  var xhr = new XMLHttpRequest();
+                  xhr.open('delete','/delete?'+pathname,true);
+                  xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded;charset=UTF-8");
+                  xhr.send();
+                  xhr.onreadystatechange =  () => {
+                      // 这步为判断服务器是否正确响应
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                      console.log(xhr.responseText);
+                    } 
+                  }
+                };
+              }
+            }
+            </script>
             <h1>Index of <a href="/">root/</a>`
           pathname.split('/').filter(a => a.trim()).forEach((item, index, arr) => {
             html += '<a href="/' + arr.slice(0, index + 1).join('/') + '">' + item + '/</a>'
@@ -81,11 +95,12 @@ const server = http.createServer((req, res) => {
           files = files.filter(file => !file.isFile).concat(files.filter(file => file.isFile))
           // filter(file => !file.isFile)
           for (const file of files) {
-            html += `<a href="${path.join(pathname, file.name)}" title="${file.name}">${file.name.length > 30 ? file.name.slice(0, 35) + '...' : file.name}${file.isFile ? '' : '/'}</a><br>`
+            html += `<a href="${path.join(pathname, file.name)}" title="${file.name}">${file.name}${file.isFile ? '' : '/'}</a><br>`
           }
           html += `</div><br><div style="display: inline-block; float: right; width: 50%; font-size: ${fontsize}px;margin-bottom:20px">`
           for (const file of files) {
-            html += (file.isFile ? util.normallizeSize(file.size) : 'Directory') + '<br>'
+            html += `<div style="width: 100px;display:inline-block;">` + (file.isFile ? util.normallizeSize(file.size)+`</div><button>X</button>` : 'Directory</div>') + '<br>'
+
           }
           html += `</div> <br>
             <form action="/upload" enctype="multipart/form-data" method="post">
@@ -102,21 +117,19 @@ const server = http.createServer((req, res) => {
     })
   } else if (req.url == '/upload' && req.method.toLowerCase() == 'post'){//upload
     console.log(`${req.method} ${req.url}`)
-    // parse a file upload
     const form = new formidable.IncomingForm();
     form.uploadDir = "./store";
     form.keepExtensions = true;
-    form.parse(req, function(err, fields, files) {
+    form.parse(req, (err, fields, files) => {
       if(!files.upload.name){
         res.end('err')
         return
       }
       var oldpath = path.normalize(files.upload.path);
       var newpath = path.join(oldpath.slice(0,oldpath.lastIndexOf('\\')+1)  + files.upload.name)
-      // console.log(oldpath,newpath)
 
       res.writeHead(200, {'content-type': 'text/plain'});
-      // res.write('received upload:\n\n');
+      res.write('received upload:\n\n');
       fs.rename(oldpath,newpath,(err)=>{
         if(err){
           console.log(err)
@@ -127,6 +140,17 @@ const server = http.createServer((req, res) => {
       })
     });
     return;
+    // req.url == '/delete' && 
+  } else if (req.method.toLowerCase() == 'delete'){
+    fs.unlink('store/'+decode(url.parse(req.url).query), function (err) {
+        if (err) {
+          res.end('err')
+          console.log(err);
+        }else{
+        console.log('文件删除成功');
+        res.end('deleted')
+        }
+    })
   }
 })
 
