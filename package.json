@@ -1,0 +1,17 @@
+{
+  "name": "clouddisk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Nicholas",
+  "license": "MIT",
+  "dependencies": {
+    "etag": "^1.8.1",
+    "formidable": "^1.2.1",
+    "mime": "^2.3.1",
+    "urldecode": "^1.0.1"
+  }
+}
