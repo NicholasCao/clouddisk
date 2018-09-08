@@ -64,28 +64,42 @@ const server = http.createServer((req, res) => {
               for (let i=0, length=btns.length; i<length; i++) {
                 var btn = btns[i];
                 btn.onclick = function (){
-                  var pathname = document.getElementsByTagName("a")[i+3].innerHTML
+                  var h1as = document.getElementsByTagName('h1')[0].getElementsByTagName('a')
+                  var pathsname = []
+                  for(let j=0;j<h1as.length;j++){
+                    var h1a = h1as[j];
+                    pathsname.push(h1a.innerHTML)
+                  }
+                  var pathname=pathsname.slice(1).join('')
+                  console.log(pathname)
+                  var as = document.getElementsByTagName("a")
+                  var filesname = []
+                  for(let k=0;k<as.length;k++){
+                    var a = as[k];
+                    filesname.push(a.innerHTML)
+                  }
+                  var filesname = filesname.filter((item)=>item[item.length-1]!='/')
+                  var filename = filesname[i+1]
+                  console.log(filename)
                   var xhr = new XMLHttpRequest();
-                  xhr.open('delete','/delete?'+pathname,true);
+                  xhr.open('delete','/delete?'+pathname+filename,true);
                   xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded;charset=UTF-8");
                   xhr.send();
                   xhr.onreadystatechange =  () => {
-                      // 这步为判断服务器是否正确响应
                     if (xhr.readyState == 4 && xhr.status == 200) {
-                      console.log('xhr.responseText');
                       window.location.reload();
                     } 
                   }
                 };
               }
             }
-            </script>
-            <h1>Index of <a href="/">root/</a>`
+          </script>
+          <h1>Index of <a href="/">root/</a>`
           pathname.split('/').filter(a => a.trim()).forEach((item, index, arr) => {
             html += '<a href="/' + arr.slice(0, index + 1).join('/') + '">' + item + '/</a>'
           })
           html += '</h1><br><hr>'
-          html += `<div style="display: inline-block; float: left; width: 30%; font-size: ${fontsize}px; margin-left: 3%; margin-bottom:20px"><a style="text-decoration: underline;" href="..">..</a><br>`
+          html += `<div style="display: inline-block; float: left; width: 30%; font-size: ${fontsize}px; margin-left: 3%; margin-bottom:20px"><a style="text-decoration: underline;" href="${pathname.split('/').length<=2? '/':pathname.split('/').slice(0,-1).join('/')}">..</a><br>`
           let files = fs.readdirSync(filepath).filter(file => util.filefilter(file)).map(file => {
             const filestat = fs.statSync(path.join(filepath, file))
             filestat.name = file
@@ -104,10 +118,11 @@ const server = http.createServer((req, res) => {
           }
           html += `</div> <br>
             <form action="/upload" enctype="multipart/form-data" method="post">
+            <input type="text" name="path" value="${pathname}" style="display:none"><br>
             <input type="file" name="upload" multiple="multiple"><br>
             <input type="submit" value="提交" style="width:55px">
             </form>
-          `       
+          `
           res.end(html)
         }
       } else {
@@ -126,8 +141,8 @@ const server = http.createServer((req, res) => {
         return
       }
       var oldpath = path.normalize(files.upload.path);
-      var newpath = path.join(__dirname,'/store/' + files.upload.name)
-      // console.log(newpath)
+      var newpath = path.join(__dirname,'/store'+fields.path + '/'+ files.upload.name)
+      console.log(newpath)
       res.writeHead(200, {'content-type': 'text/plain'});
       res.write('received upload:\n\n');
       fs.rename(oldpath,newpath,(err)=>{
@@ -140,14 +155,12 @@ const server = http.createServer((req, res) => {
       })
     });
     return;
-    // req.url == '/delete' && 
   } else if (req.method.toLowerCase() == 'delete'){
     fs.unlink('store/'+decode(url.parse(req.url).query), function (err) {
         if (err) {
           res.end('err')
           console.log(err);
         }else{
-        console.log('文件删除成功');
         res.end('deleted')
         }
     })
