@@ -126,7 +126,7 @@ const server = http.createServer((req, res) => {
         return
       }
       var oldpath = path.normalize(files.upload.path);
-      var newpath = path.join(__dirname,oldpath.substring(0,oldpath.lastIndexOf('/')+1) + files.upload.name)
+      var newpath = path.join(__dirname,'/store/' + files.upload.name)
       // console.log(newpath)
       res.writeHead(200, {'content-type': 'text/plain'});
       res.write('received upload:\n\n');
