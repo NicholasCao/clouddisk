@@ -1,2 +1,2 @@
 # clouddisk
-my clouddisk powered bt native node.js . 
+my clouddisk powered by native node.js . 
