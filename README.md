@@ -1,5 +1,5 @@
 # clouddisk
-my clouddisk powered by native node.js . 
+my clouddisk powered by native nodejs . 
 
 ```
 # install dependencies
