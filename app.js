@@ -55,7 +55,7 @@ const server = http.createServer((req, res) => {
         } else {
           let html = `<style>a{text-decoration: none;color: black} 
             h1 a{color: #423f37;} 
-            input {margin-top:10px;background-color: #fff;border-radius: 4px;border: 1px solid #dcdfe6;color: #606266;font-size: inherit;line-height: 30px;margin-left:3%;}
+            input {margin-top:10px;background-color: #fff;border-radius: 4px;border: 1px solid #dcdfe6;color: #606266;font-size: inherit;line-height: 30px;margin-left:8%;}
             button {line-height: 1;cursor: pointer;background: #fff;border: 1px solid #dcdfe6;color: #606266;font-size: 16px;border-radius: 4px;margin-left: 15px}
             </style>
             <script>
@@ -99,7 +99,7 @@ const server = http.createServer((req, res) => {
             html += '<a href="/' + arr.slice(0, index + 1).join('/') + '">' + item + '/</a>'
           })
           html += '</h1><br><hr>'
-          html += `<div style="display: inline-block; float: left; width: 30%; font-size: ${fontsize}px; margin-left: 3%; margin-bottom:20px"><a style="text-decoration: underline;" href="${pathname.split('/').length<=2? '/':pathname.split('/').slice(0,-1).join('/')}">..</a><br>`
+          html += `<div style="display: flex; flex-direction: row;"><div style="display: inline-block; width: 25%; font-size: ${fontsize}px; margin-left: 8%; margin-bottom:20px"><a style="text-decoration: underline;" href="${pathname.split('/').length<=2? '/':pathname.split('/').slice(0,-1).join('/')}">..</a><br>`
           let files = fs.readdirSync(filepath).filter(file => util.filefilter(file)).map(file => {
             const filestat = fs.statSync(path.join(filepath, file))
             filestat.name = file
@@ -111,12 +111,12 @@ const server = http.createServer((req, res) => {
           for (const file of files) {
             html += `<a href="${path.join(pathname, file.name)}" title="${file.name}">${file.name}${file.isFile ? '' : '/'}</a><br>`
           }
-          html += `</div><br><div style="display: inline-block; float: right; width: 50%; font-size: ${fontsize}px;margin-bottom:20px">`
+          html += `</div><br><div style="display: inline-block; width: 50%; font-size: ${fontsize}px; margin: 16px 0 20px 0">`
           for (const file of files) {
-            html += `<div style="width: 100px;display:inline-block;">` + (file.isFile ? util.normallizeSize(file.size)+`</div><button>X</button>` : 'Directory</div>') + '<br>'
+            html += `<div style="width: 100px; display: inline-block;">` + (file.isFile ? util.normallizeSize(file.size)+`</div><button>X</button>` : 'Directory</div>') + '<br>'
 
           }
-          html += `</div> <br>
+          html += `</div></div>
             <form action="/upload" enctype="multipart/form-data" method="post">
             <input type="text" name="path" value="${pathname}" style="display:none"><br>
             <input type="file" name="upload" multiple="multiple"><br>
@@ -170,4 +170,3 @@ const server = http.createServer((req, res) => {
 server.listen(PORT)
 
 console.log(`Server is running at http://localhost:${PORT}/`)
-
